@@ -153,7 +153,7 @@
   <div class="top">
     <div class="eyebrow">Performance &amp; Analytics · Wiz Corporate</div>
     <h1>Controle de Férias &amp; Intenções</h1>
-    <p>Preencha abaixo suas <b>férias</b> para qualquer ano. Cada registro passa por <b>aprovação do gestor</b> e <b>aprovação no sistema</b>. Use <b>+ Novo registro</b> para incluir ou editar. As alterações são salvas automaticamente neste navegador.</p>
+    <p>Preencha abaixo suas <b>férias</b> para qualquer ano. Cada registro passa por <b>aprovação do gestor</b> e <b>aprovação no sistema</b>. Use <b>+ Novo registro</b> para incluir ou editar. As alterações são salvas automaticamente na base compartilhada e aparecem para todo o time.</p>
   </div>
 
   <div class="tabs">
@@ -172,7 +172,6 @@
     <input type="text" id="fBusca" placeholder="Buscar nome...">
     <button class="btn ghost" id="btClear" title="Limpar filtros">Limpar</button>
     <span class="sp"></span>
-    <button class="btn ghost" id="btPub" title="Baixar o dados.json para publicar no repositório">Publicar ⤓</button>
     <button class="btn primary" id="btNew">+ Novo registro</button>
   </div>
 
@@ -214,7 +213,7 @@
   </div>
 
   <div class="foot">
-    Dados salvos automaticamente neste navegador.<br>
+    Base compartilhada em tempo real · todos veem as mesmas informações.<br>
     Wiz Corporate · Superintendência de Estruturação e Performance · Atualize sempre que houver nova data.
   </div>
 </div>
@@ -257,10 +256,15 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 var SEED=[{"nome": "Piera Giovanna", "tipo": "Férias", "inicio": "2026-01-19", "fim": "2026-01-30", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Piera Giovanna", "tipo": "Férias", "inicio": "2026-09-08", "fim": "2026-09-25", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Piera Giovanna", "tipo": "Férias", "inicio": "2027-02-01", "fim": "2027-02-05", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Matheus Dantas", "tipo": "Férias", "inicio": "2026-02-09", "fim": "2026-02-13", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Matheus Dantas", "tipo": "Férias", "inicio": "2026-03-16", "fim": "2026-03-31", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Matheus Dantas", "tipo": "Férias", "inicio": "2026-07-06", "fim": "2026-07-15", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Matheus Dantas", "tipo": "Férias", "inicio": "2027-02-11", "fim": "2027-02-24", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Marlon Ribeiro", "tipo": "Férias", "inicio": "2026-08-03", "fim": "2026-08-22", "gestor": "Aprovado", "sistema": "Aprovado", "obs": "10 dias abonados"}, {"nome": "Ramon Bazani", "tipo": "Férias", "inicio": "2026-06-08", "fim": "2026-06-12", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Ruth Fagundes", "tipo": "Férias", "inicio": "2026-01-19", "fim": "2026-02-01", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Ruth Fagundes", "tipo": "Férias", "inicio": "2026-11-03", "fim": "2026-11-18", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Gabriel Peixoto", "tipo": "Férias", "inicio": "2026-04-06", "fim": "2026-04-16", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Gabriel Peixoto", "tipo": "Férias", "inicio": "2026-11-09", "fim": "2026-11-20", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Wellington Fleury", "tipo": "Férias", "inicio": "2026-12-03", "fim": "2026-12-17", "gestor": "Aprovado", "sistema": "Aprovado", "obs": "10 dias abonados"}, {"nome": "Wellington Fleury", "tipo": "Férias", "inicio": "2027-01-25", "fim": "2027-01-29", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Amanda Furtado", "tipo": "Férias", "inicio": "2027-01-04", "fim": "2027-01-23", "gestor": "Pendente", "sistema": "Pendente", "obs": "20 dias · 2 parcelas · retorno 24/01 · pendente aprovação"}];
 var AQUIS=["Nicole Kodama", "Danilo Alves", "Letícia Lopes"], LICENCA=["Bárbara Cruvinel"];
 var KEY="wiz_ferias_pa_v1";
+var SB_URL="https://oqfjbpxhvbsidobvmpvb.supabase.co";
+var SB_KEY="sb_publishable_PFWwRBfXErXiIYN9I0BhHQ_wEiKEcWC";
+var sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
+var _lastJSON="";
 var BLOBKEY=KEY+"_blob";
 var DATAVER=0;
 var data=[];
@@ -460,17 +464,18 @@ document.getElementById("mSave").onclick=function(){
   if(!ini||!fim){alert("Informe início e fim.");return;}
   if(fim<ini){alert("A data de fim não pode ser anterior ao início.");return;}
   var id=document.getElementById("mId").value;
-  TEAMS[nome]=document.getElementById("mTime").value;saveTeams();
-  var rec={id:id||uid(),nome:nome,tipo:document.getElementById("mTipo").value,
+  var time=document.getElementById("mTime").value;TEAMS[nome]=time;
+  var payload={nome:nome,time:time,tipo:document.getElementById("mTipo").value,
     inicio:ini,fim:fim,gestor:document.getElementById("mGestor").value,
     sistema:document.getElementById("mSistema").value,obs:document.getElementById("mObs").value.trim()};
-  if(id){data=data.map(function(a){return a.id===id?rec:a;});}else{data.push(rec);}
-  save();ov.classList.remove("on");refresh();
+  var btn=document.getElementById("mSave");btn.disabled=true;
+  var q=id?sb.from("registros").update(payload).eq("id",id):sb.from("registros").insert(payload);
+  q.then(function(res){btn.disabled=false;if(res.error){alert("Erro ao salvar: "+res.error.message);return;}ov.classList.remove("on");reloadData();});
 };
 document.getElementById("mDel").onclick=function(){
   var id=document.getElementById("mId").value;if(!id)return;
   if(!confirm("Excluir este registro?"))return;
-  data=data.filter(function(a){return a.id!==id;});save();ov.classList.remove("on");refresh();
+  sb.from("registros").delete().eq("id",id).then(function(res){if(res.error){alert("Erro ao excluir: "+res.error.message);return;}ov.classList.remove("on");reloadData();});
 };
 
 // filters
@@ -596,30 +601,22 @@ document.querySelectorAll(".tab").forEach(function(t){t.onclick=function(){
 };});
 
 function refresh(){render();renderCal();}
-function boot(){
-  var local=localBlob();
-  var fin=function(){data.forEach(function(x,i){if(!x.id)x.id="s"+i;});save();refresh();};
-  var useLocal=function(){
-    if(local){data=local.registros||[];if(local.teams)TEAMS=local.teams;DATAVER=local.version||0;}
-    else{data=SEED.map(function(x,i){x.id="s"+i;return x;});DATAVER=0;}
-    fin();
-  };
-  try{
-    fetch('dados.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(rem){
-      if(rem&&rem.registros&&(!local||(rem.version||0)>(local.version||0))){
-        data=rem.registros;if(rem.teams)TEAMS=rem.teams;DATAVER=rem.version||0;fin();
-      }else{useLocal();}
-    }).catch(useLocal);
-  }catch(e){useLocal();}
+function mapRows(rows){return (rows||[]).map(function(r){if(r.time)TEAMS[r.nome]=r.time;return {id:r.id,nome:r.nome,tipo:r.tipo,inicio:r.inicio,fim:r.fim,gestor:r.gestor,sistema:r.sistema,obs:r.obs||""};});}
+function loadData(cb){
+  if(!sb){if(cb)cb("sem-sb");return;}
+  sb.from("registros").select("*").then(function(res){
+    if(res.error){console.error(res.error);if(cb)cb(res.error);return;}
+    var js=JSON.stringify(res.data);
+    if(js!==_lastJSON){_lastJSON=js;data=mapRows(res.data);refresh();}
+    if(cb)cb(null);
+  });
 }
-var btPub=document.getElementById("btPub");
-if(btPub)btPub.onclick=function(){
-  var blob={version:DATAVER+1,atualizado:new Date().toISOString(),registros:data,teams:TEAMS};
-  var s=new Blob([JSON.stringify(blob,null,2)],{type:"application/json"});
-  var u=URL.createObjectURL(s),a=document.createElement("a");a.href=u;a.download="dados.json";a.click();
-  setTimeout(function(){URL.revokeObjectURL(u);},400);
-  alert("Arquivo dados.json baixado. Suba/substitua ele no repositório do GitHub (commit) para publicar as alterações para todo o time.");
-};
+function reloadData(){loadData();}
+function boot(){
+  if(!sb){alert("Não foi possível carregar a base (Supabase). Verifique a conexão e recarregue a página.");return;}
+  loadData(function(err){if(err&&err!=="sem-sb")alert("Erro ao carregar os dados: "+(err.message||err));});
+  setInterval(loadData,20000);
+}
 boot();
 </script>
 </body>
