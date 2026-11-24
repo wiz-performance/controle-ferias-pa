@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Controle de Férias · Performance & Analytics · Wiz Corporate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --flame-400:#ff7a18;--flame-500:#ff5a00;--flame-600:#e63100;--flame-700:#c21404;
+    --ink-900:#14100e;--ink-800:#1c1714;--ink-700:#2e2622;--ink-500:#6b5d55;--ink-400:#948981;
+    --line:#ddd6cf;--panel:#fff;--cream:#f6f3ee;--muted:#948981;
+    --ok:#1e9a6c;--okbg:#dcf3e6;--wait:#ee9a1c;--waitbg:#fcefd4;--no:#d83a3a;--nobg:#fbe3e3;
+    --info:#2c82a6;--infobg:#d7e8ee;
+    --font-display:'Sora','Trebuchet MS',system-ui,sans-serif;
+    --font-sans:'Hanken Grotesk','Segoe UI',Arial,sans-serif;
+    --font-mono:'JetBrains Mono',Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--cream);font-family:var(--font-sans);color:var(--ink-800);padding:22px 16px 60px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto}
+  /* header */
+  .top{background:linear-gradient(135deg,#ff8a2a 0%,#e63100 60%,#b11005 100%);border-radius:20px;padding:26px 30px;color:#fff;position:relative;overflow:hidden;box-shadow:0 16px 40px rgba(230,49,0,.24)}
+  .top::after{content:"";position:absolute;right:-50px;top:-50px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.2),transparent 70%)}
+  .top .eyebrow{font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.82);margin-bottom:9px}
+  .top h1{font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1.05;letter-spacing:-.4px}
+  .top p{margin-top:9px;font-size:13.5px;color:rgba(255,255,255,.92);max-width:720px;line-height:1.5}
+  /* tabs */
+  .tabs{display:flex;gap:6px;margin:18px 0 4px;border-bottom:1px solid var(--line)}
+  .tab{font-family:var(--font-sans);font-size:13px;font-weight:700;color:var(--ink-500);background:none;border:none;padding:10px 16px;cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px}
+  .tab.on{color:var(--flame-700);border-bottom-color:var(--flame-600)}
+  /* calendar */
+  .calbar{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:16px 0 12px}
+  .calnav{display:flex;align-items:center;gap:8px}
+  .calnav .btn{padding:6px 11px}
+  .calmonth{font-family:var(--font-display);font-weight:800;font-size:16px;color:var(--ink-900);min-width:150px;text-align:center;text-transform:capitalize}
+  .callegend{display:flex;flex-wrap:wrap;gap:12px;margin-left:auto;font-size:11.5px;color:var(--ink-500)}
+  .callegend span{display:inline-flex;align-items:center;gap:5px}
+  .callegend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .calhint{background:#fff6f1;border:1px solid #ffd9c7;color:var(--flame-700);border-radius:10px;padding:11px 15px;font-size:12.5px;margin-bottom:12px;line-height:1.5}
+  .calmonths{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:14px}
+  .mcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 13px 14px;box-shadow:0 4px 14px rgba(20,16,14,.04)}
+  .mcard h4{font-family:var(--font-display);font-weight:800;font-size:12.5px;text-transform:uppercase;letter-spacing:.07em;text-align:center;color:#5b4f8a;background:#efeaf7;border-radius:7px;padding:5px 0;margin-bottom:8px}
+  table.mcal{width:100%;border-collapse:collapse;table-layout:fixed}
+  table.mcal th{font-family:var(--font-mono);font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;padding:2px 0 4px;text-align:center}
+  table.mcal th.wk{color:#d07a7a}
+  table.mcal td{height:27px;text-align:center;vertical-align:middle;padding:1px}
+  table.mcal td .dn{display:flex;align-items:center;justify-content:center;width:22px;height:22px;margin:0 auto;font-size:10.5px;color:var(--ink-700);font-weight:600;border-radius:7px;position:relative}
+  table.mcal td.wke .dn{color:#d83a3a}
+  table.mcal td.off .dn{color:#fff;font-weight:700}
+  table.mcal td.today .dn{outline:2px solid var(--flame-600);outline-offset:1px}
+  table.mcal td .dots{position:absolute;bottom:-3px;left:0;right:0;display:flex;gap:2px;justify-content:center}
+  table.mcal td .dots i{width:3.5px;height:3.5px;border-radius:50%;box-shadow:0 0 0 1px #fff}
+  table.mcal td{position:relative}
+  table.mcal td.hol::after{content:"";position:absolute;top:2px;right:3px;width:5px;height:5px;border-radius:50%;background:#d83a3a;box-shadow:0 0 0 1px #fff;z-index:2}
+  table.mcal td.hol .dn{color:#d83a3a}
+  table.mcal td.hol.off .dn{color:#fff}
+  table.mcal td.cd{cursor:pointer}
+  table.mcal td.cd:hover .dn{outline:2px solid var(--flame-400);outline-offset:1px}
+  .off-fer .dn{background:#2c82a6}
+  .off-folga .dn{background:#ee9a1c}
+  .off-dayoff .dn{background:#9a7ec4}
+  .off-pret .dn{background:#b9afa6}
+  .off-multi .dn{background:#e63100}
+  .dot-fer{background:#2c82a6}.dot-folga{background:#ee9a1c}.dot-dayoff{background:#9a7ec4}.dot-pret{background:#b9afa6}
+  .mpins{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;padding-top:9px;border-top:1px solid #efeae3}
+  .pin{font-family:var(--font-mono);font-size:9px;font-weight:700;color:#fff;border-radius:999px;padding:2px 6px;letter-spacing:.03em;cursor:pointer}
+  .pin:hover{filter:brightness(1.08)}
+  .pin.on{outline:2px solid #14100e;outline-offset:1px}
+  .pin-fer{background:#2c82a6}.pin-folga{background:#ee9a1c}.pin-dayoff{background:#9a7ec4}.pin-pret{background:#b9afa6}
+  .mpins .none{font-size:10px;color:var(--muted);font-style:italic}
+  /* summary */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
+  .scard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .scard .n{font-family:var(--font-display);font-weight:800;font-size:26px;color:var(--ink-900);line-height:1}
+  .scard .l{font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+  /* toolbar */
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 0 12px}
+  .bar select,.bar input[type=text]{font-family:var(--font-sans);font-size:12.5px;color:var(--ink-800);background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 11px}
+  .bar .sp{flex:1}
+  /* multiselect */
+  .ms{position:relative;font-size:12.5px}
+  .ms-btn{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-sans);font-size:12.5px;color:var(--ink-800);background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 11px;cursor:pointer;white-space:nowrap}
+  .ms-btn.sel{border-color:var(--flame-600);background:#fff6f1;color:var(--flame-700);font-weight:600}
+  .ms-btn .cnt{font-family:var(--font-mono);font-size:10px;font-weight:700;background:var(--flame-600);color:#fff;border-radius:999px;padding:1px 6px}
+  .ms-btn .ar{color:var(--muted);font-size:10px}
+  .ms-pop{position:absolute;top:calc(100% + 5px);left:0;z-index:40;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 34px rgba(20,16,14,.16);padding:7px;min-width:180px;max-height:260px;overflow:auto;display:none}
+  .ms-pop.on{display:block}
+  .ms-opt{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;cursor:pointer;color:var(--ink-700)}
+  .ms-opt:hover{background:#f7f2ec}
+  .ms-opt input{width:15px;height:15px;accent-color:var(--flame-600);cursor:pointer}
+  .ms-clear{font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:6px 9px 4px;border-top:1px solid var(--line);margin-top:4px;cursor:pointer;text-align:center}
+  .ms-clear:hover{color:var(--flame-700)}
+  .ms-all{font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--flame-700);padding:5px 9px 7px;border-bottom:1px solid var(--line);margin-bottom:4px;cursor:pointer;text-align:center}
+  .ms-all:hover{color:var(--flame-600);background:#fff6f1;border-radius:6px}
+  .btn{font-family:var(--font-sans);font-size:12.5px;font-weight:700;border-radius:10px;padding:8px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink-800);display:inline-flex;align-items:center;gap:6px}
+  .btn.primary{background:var(--flame-600);border-color:var(--flame-600);color:#fff}
+  .btn.ghost{background:#fff}
+  .btn:hover{filter:brightness(.97)}
+  /* table */
+  .tablewrap{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  thead th{background:#faf7f2;text-align:left;font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-500);padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+  tbody td{padding:10px 12px;border-bottom:1px solid #efeae3;vertical-align:middle}
+  tbody tr:hover{background:#fcfaf7}
+  .nm{font-weight:700;color:var(--ink-900)}
+  .chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:9.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .c-ok{color:var(--ok);background:var(--okbg)}
+  .c-wait{color:#b5750a;background:var(--waitbg)}
+  .c-no{color:var(--no);background:var(--nobg)}
+  .c-fer{color:var(--info);background:var(--infobg)}
+  .c-pret{color:#7a6a5e;background:#efeae3}
+  .c-folga{color:#b5750a;background:#fcefd4}
+  .c-dayoff{color:#7a5fa8;background:#ede6f5}
+  .c-real{color:var(--muted);background:#f2eee9}
+  .c-cur{color:var(--flame-600);background:#ffe4d8}
+  .c-fut{color:var(--info);background:var(--infobg)}
+  .c-perf{color:var(--flame-700);background:#ffe4d8}
+  .c-analy{color:var(--info);background:var(--infobg)}
+  .c-adef{color:#7a6a5e;background:#efeae3}
+  .obs{font-size:11px;color:var(--muted)}
+  .act{display:inline-flex;gap:6px}
+  .ic{cursor:pointer;border:none;background:none;color:var(--ink-400);font-size:14px;padding:2px 4px;border-radius:6px}
+  .ic:hover{background:#f0ebe4;color:var(--ink-800)}
+  .empty{padding:26px;text-align:center;color:var(--muted);font-size:13px}
+  /* roster note */
+  .note{margin-top:14px;background:#fff;border:1px dashed var(--line);border-radius:12px;padding:13px 16px;font-size:12px;color:var(--ink-700);line-height:1.6}
+  .note b{color:var(--ink-900)}
+  /* modal */
+  .ov{position:fixed;inset:0;background:rgba(20,16,14,.5);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow:auto}
+  .ov.on{display:flex}
+  .modal{background:#fff;border-radius:18px;width:100%;max-width:540px;padding:24px 26px;box-shadow:0 30px 70px rgba(0,0,0,.3)}
+  .modal h2{font-family:var(--font-display);font-size:19px;font-weight:800;color:var(--ink-900);margin-bottom:4px}
+  .modal .sub{font-size:12px;color:var(--muted);margin-bottom:18px}
+  .fg{margin-bottom:13px}
+  .fg label{display:block;font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-500);margin-bottom:5px}
+  .fg input,.fg select,.fg textarea{width:100%;font-family:var(--font-sans);font-size:13px;color:var(--ink-800);background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+  .fg textarea{resize:vertical;min-height:52px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .modact{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+  .daybadge{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:6px}
+  .mwarn{margin-top:4px;background:#fbe9e9;border:1px solid #f2c4c4;color:#a32626;border-radius:10px;padding:11px 13px;font-size:12.5px;line-height:1.5}
+  .mwarn b{color:#8f1f1f}
+  .foot{margin-top:24px;font-size:11px;color:var(--muted);text-align:center;line-height:1.6}
+  @media(max-width:720px){.hidem{display:none}.top h1{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="eyebrow">Performance &amp; Analytics · Wiz Corporate</div>
+    <h1>Controle de Férias &amp; Intenções</h1>
+    <p>Preencha abaixo suas <b>férias</b> para qualquer ano. Cada registro passa por <b>aprovação do gestor</b> e <b>aprovação no sistema</b>. Use <b>+ Novo registro</b> para incluir ou editar. As alterações são salvas automaticamente neste navegador.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-view="tabela">Tabela</button>
+    <button class="tab" data-view="cal">Calendário</button>
+  </div>
+
+  <div class="bar">
+    <div class="ms" data-key="time"></div>
+    <div class="ms" data-key="ano"></div>
+    <div class="ms" data-key="mes"></div>
+    <div class="ms" data-key="pessoa"></div>
+    <div class="ms" data-key="tipo"></div>
+    <div class="ms" data-key="sit"></div>
+    <div class="ms" data-key="status"></div>
+    <input type="text" id="fBusca" placeholder="Buscar nome...">
+    <button class="btn ghost" id="btClear" title="Limpar filtros">Limpar</button>
+    <span class="sp"></span>
+    <button class="btn ghost" id="btPub" title="Baixar o dados.json para publicar no repositório">Publicar ⤓</button>
+    <button class="btn primary" id="btNew">+ Novo registro</button>
+  </div>
+
+  <div id="viewTabela">
+  <div class="cards" id="cards"></div>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th>Colaborador</th><th>Time</th><th>Tipo</th><th>Início</th><th>Fim</th><th>Dias</th>
+        <th>Situação</th><th>Aprov. Gestor</th><th>Aprov. Sistema</th><th class="hidem">Obs.</th><th></th>
+      </tr></thead>
+      <tbody id="tb"></tbody>
+    </table>
+    <div class="empty" id="empty" style="display:none">Nenhum registro para este filtro.</div>
+  </div>
+
+  </div><!-- /viewTabela -->
+
+  <div id="viewCalendario" style="display:none">
+    <div class="calbar">
+      <div class="calnav">
+        <button class="btn ghost" id="calPrev">‹</button>
+        <div class="calmonth" id="calMonth"></div>
+        <button class="btn ghost" id="calNext">›</button>
+        <button class="btn ghost" id="calToday">Ano atual</button>
+      </div>
+      <div class="callegend">
+        <span><i style="background:#2c82a6"></i>Férias</span>
+        <span><i style="background:#ee9a1c"></i>Folga</span>
+        <span><i style="background:#9a7ec4"></i>Day Off</span>
+        <span><i style="background:#b9afa6"></i>Intenção de férias</span>
+        <span><i style="background:#e63100"></i>2+ pessoas no dia</span>
+        <span><i style="background:#d83a3a;border-radius:50%"></i>Feriado nacional</span>
+      </div>
+    </div>
+    <div class="calhint" id="calHint">Selecione uma ou mais pessoas no filtro <b>Pessoa</b> (acima) para ver os períodos no calendário. Os demais filtros também se aplicam.</div>
+    <div id="calGrid" class="calmonths"></div>
+  </div>
+
+  <div class="foot">
+    Dados salvos automaticamente neste navegador.<br>
+    Wiz Corporate · Superintendência de Estruturação e Performance · Atualize sempre que houver nova data.
+  </div>
+</div>
+
+<!-- modal -->
+<div class="ov" id="ov">
+  <div class="modal">
+    <h2 id="mTit">Novo registro</h2>
+    <div class="sub">Férias confirmadas ou pretensão de férias.</div>
+    <input type="hidden" id="mId">
+    <div class="fg">
+      <label>Colaborador</label>
+      <input type="text" id="mNome" list="nomes" placeholder="Nome completo" autocomplete="off">
+      <datalist id="nomes"></datalist>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Time</label>
+        <select id="mTime"><option value="Performance">Performance</option><option value="Analytics">Analytics</option><option value="A definir">A definir</option></select>
+      </div>
+      <div class="fg"><label>Tipo</label>
+        <select id="mTipo"><option value="Férias">Férias</option><option value="Folga">Folga</option><option value="Day Off">Day Off</option><option value="Intenção de férias">Intenção de férias</option></select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Início</label><input type="date" id="mIni"></div>
+      <div class="fg"><label>Fim</label><input type="date" id="mFim"></div>
+    </div>
+    <div class="daybadge" id="mDias">—</div>
+    <div class="row2" style="margin-top:8px">
+      <div class="fg"><label>Aprovação Gestor</label><select id="mGestor"><option>Pendente</option><option>Aprovado</option><option>Reprovado</option></select></div>
+      <div class="fg"><label>Aprovação Sistema</label><select id="mSistema"><option>Pendente</option><option>Aprovado</option><option>Reprovado</option></select></div>
+    </div>
+    <div class="fg"><label>Observação (abonados, parcelas...)</label><textarea id="mObs" placeholder="Opcional"></textarea></div>
+    <div id="mWarn" class="mwarn" style="display:none"></div>
+    <div class="modact">
+      <button class="btn ghost" id="mDel" style="margin-right:auto;display:none;color:var(--no);border-color:#f0cdcd">Excluir</button>
+      <button class="btn ghost" id="mCancel">Cancelar</button>
+      <button class="btn primary" id="mSave">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var SEED=[{"nome": "Piera Giovanna", "tipo": "Férias", "inicio": "2026-01-19", "fim": "2026-01-30", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Piera Giovanna", "tipo": "Férias", "inicio": "2026-09-08", "fim": "2026-09-25", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Piera Giovanna", "tipo": "Férias", "inicio": "2027-02-01", "fim": "2027-02-05", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Matheus Dantas", "tipo": "Férias", "inicio": "2026-02-09", "fim": "2026-02-13", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Matheus Dantas", "tipo": "Férias", "inicio": "2026-03-16", "fim": "2026-03-31", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Matheus Dantas", "tipo": "Férias", "inicio": "2026-07-06", "fim": "2026-07-15", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Matheus Dantas", "tipo": "Férias", "inicio": "2027-02-11", "fim": "2027-02-24", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Marlon Ribeiro", "tipo": "Férias", "inicio": "2026-08-03", "fim": "2026-08-22", "gestor": "Aprovado", "sistema": "Aprovado", "obs": "10 dias abonados"}, {"nome": "Ramon Bazani", "tipo": "Férias", "inicio": "2026-06-08", "fim": "2026-06-12", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Ruth Fagundes", "tipo": "Férias", "inicio": "2026-01-19", "fim": "2026-02-01", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Ruth Fagundes", "tipo": "Férias", "inicio": "2026-11-03", "fim": "2026-11-18", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Gabriel Peixoto", "tipo": "Férias", "inicio": "2026-04-06", "fim": "2026-04-16", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Gabriel Peixoto", "tipo": "Férias", "inicio": "2026-11-09", "fim": "2026-11-20", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Wellington Fleury", "tipo": "Férias", "inicio": "2026-12-03", "fim": "2026-12-17", "gestor": "Aprovado", "sistema": "Aprovado", "obs": "10 dias abonados"}, {"nome": "Wellington Fleury", "tipo": "Férias", "inicio": "2027-01-25", "fim": "2027-01-29", "gestor": "Aprovado", "sistema": "Aprovado", "obs": ""}, {"nome": "Amanda Furtado", "tipo": "Férias", "inicio": "2027-01-04", "fim": "2027-01-23", "gestor": "Pendente", "sistema": "Pendente", "obs": "20 dias · 2 parcelas · retorno 24/01 · pendente aprovação"}];
+var AQUIS=["Nicole Kodama", "Danilo Alves", "Letícia Lopes"], LICENCA=["Bárbara Cruvinel"];
+var KEY="wiz_ferias_pa_v1";
+var BLOBKEY=KEY+"_blob";
+var DATAVER=0;
+var data=[];
+function localBlob(){try{return JSON.parse(localStorage.getItem(BLOBKEY)||"null");}catch(e){return null;}}
+function save(d){if(d)data=d;try{localStorage.setItem(BLOBKEY,JSON.stringify({version:DATAVER,registros:data,teams:TEAMS}));}catch(e){}}
+function uid(){return "u"+Date.now()+Math.floor(Math.random()*999);}
+
+function parseD(s){if(!s)return null;var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2]);}
+function days(a,b){var x=parseD(a),y=parseD(b);if(!x||!y)return "";return Math.round((y-x)/864e5)+1;}
+function fmt(s){if(!s)return "—";var p=s.split("-");return p[2]+"/"+p[1]+"/"+p[0];}
+function yearOf(x){return (x.inicio||"----").slice(0,4);}
+function monthsOf(x){var i=parseD(x.inicio),f=parseD(x.fim),out=[];if(!i||!f)return out;
+  var d=new Date(i.getFullYear(),i.getMonth(),1);
+  while(d<=f){out.push(("0"+(d.getMonth()+1)).slice(-2));d.setMonth(d.getMonth()+1);}
+  return out;}
+var TODAY=new Date(2026,10,24); // ref 24/11/2026
+function situacao(x){if(x.tipo==="Intenção de férias")return ["Intenção de férias","c-pret"];
+  var i=parseD(x.inicio),f=parseD(x.fim);if(!i||!f)return ["—","c-real"];
+  if(f<TODAY)return ["Realizada","c-real"];
+  if(i<=TODAY&&TODAY<=f)return ["Em curso","c-cur"];
+  return ["Futura","c-fut"];}
+function apChip(v){var c=v==="Aprovado"?"c-ok":v==="Reprovado"?"c-no":"c-wait";return '<span class="chip '+c+'">'+v+'</span>';}
+function teamChip(nome){var t=teamOf(nome);var c=t==="Performance"?"c-perf":t==="Analytics"?"c-analy":"c-adef";return '<span class="chip '+c+'">'+t+'</span>';}
+
+var SEEDTEAM={
+ "Marlon Ribeiro":"Performance","Piera Giovanna":"Performance","Matheus Dantas":"Performance",
+ "Ramon Bazani":"Performance","Wellington Fleury":"Performance","Letícia Lopes":"Performance",
+ "Ruth Fagundes":"Analytics","Amanda Furtado":"Analytics","Danilo Alves":"Analytics",
+ "Nicole Kodama":"Analytics","Gabriel Peixoto":"Analytics","Bárbara Cruvinel":"Analytics"
+};
+var TKEY="wiz_ferias_pa_teams_v1";
+var TEAMS=(function(){try{var s=localStorage.getItem(TKEY);if(s)return JSON.parse(s);}catch(e){}
+  try{localStorage.setItem(TKEY,JSON.stringify(SEEDTEAM));}catch(e){}return JSON.parse(JSON.stringify(SEEDTEAM));})();
+function saveTeams(){try{localStorage.setItem(TKEY,JSON.stringify(TEAMS));}catch(e){}}
+function teamOf(nome){return TEAMS[nome]||"A definir";}
+var SEL={time:[],ano:[],mes:[],pessoa:[],tipo:[],sit:["Futura","Em curso","Realizada","Intenção de férias"],status:[],ctime:[]};
+var MESES=[["01","Janeiro"],["02","Fevereiro"],["03","Março"],["04","Abril"],["05","Maio"],["06","Junho"],["07","Julho"],["08","Agosto"],["09","Setembro"],["10","Outubro"],["11","Novembro"],["12","Dezembro"]];
+var LABELS={time:"Time",ctime:"Time",ano:"Ano",mes:"Mês",pessoa:"Pessoa",tipo:"Tipo",sit:"Situação",status:"Aprovação"};
+function optsFor(key){
+  if(key==="time"||key==="ctime"){return [["Performance","Performance"],["Analytics","Analytics"]];}
+  if(key==="ano"){var a={};data.forEach(function(x){a[yearOf(x)]=1;});return Object.keys(a).sort().map(function(v){return [v,v];});}
+  if(key==="mes"){return MESES;}
+  if(key==="pessoa"){return allPeople().map(function(v){return [v,v];});}
+  if(key==="tipo"){return [["Férias","Férias"],["Folga","Folga"],["Day Off","Day Off"],["Intenção de férias","Intenção de férias"]];}
+  if(key==="sit"){return [["Futura","Futuras"],["Em curso","Em curso"],["Realizada","Realizadas"],["Intenção de férias","Intenções"]];}
+  if(key==="status"){return [["full","Totalmente aprovado"],["pend","Com pendência"]];}
+  return [];
+}
+function filters(){
+  document.querySelectorAll(".ms").forEach(function(ms){
+    var key=ms.getAttribute("data-key"),opts=optsFor(key),sel=SEL[key];
+    // drop selected values no longer present
+    SEL[key]=sel.filter(function(v){return opts.some(function(o){return o[0]===v;});});
+    sel=SEL[key];
+    var n=sel.length;
+    var lab=n===0?(LABELS[key]+" · todos"):(n===1?(opts.filter(function(o){return o[0]===sel[0];})[0]||["",sel[0]])[1]:(LABELS[key]));
+    var cnt=n>1?('<span class="cnt">'+n+'</span>'):"";
+    ms.innerHTML='<button type="button" class="ms-btn'+(n?' sel':'')+'"><span>'+lab+'</span>'+cnt+'<span class="ar">▾</span></button>'+
+      '<div class="ms-pop">'+
+      '<div class="ms-all" data-all="1">'+(n>=opts.length?'Limpar todos':'Marcar todos')+'</div>'+
+      opts.map(function(o){
+        var ck=sel.indexOf(o[0])>=0?"checked":"";
+        return '<label class="ms-opt"><input type="checkbox" value="'+o[0]+'" '+ck+'>'+o[1]+'</label>';
+      }).join("")+(n&&n<opts.length?'<div class="ms-clear" data-clr="1">Limpar</div>':"")+'</div>';
+    var pop=ms.querySelector(".ms-pop"),btn=ms.querySelector(".ms-btn");
+    btn.onclick=function(e){e.stopPropagation();var isOn=pop.classList.contains("on");
+      document.querySelectorAll(".ms-pop").forEach(function(p){p.classList.remove("on");});
+      if(!isOn)pop.classList.add("on");};
+    pop.onclick=function(e){e.stopPropagation();};
+    pop.querySelectorAll("input").forEach(function(inp){inp.onchange=function(){
+      var v=inp.value;if(inp.checked){if(SEL[key].indexOf(v)<0)SEL[key].push(v);}else{SEL[key]=SEL[key].filter(function(x){return x!==v;});}
+      refresh();};});
+    var clr=pop.querySelector("[data-clr]");if(clr)clr.onclick=function(){SEL[key]=[];refresh();};
+    var all=pop.querySelector("[data-all]");if(all)all.onclick=function(){SEL[key]=(SEL[key].length>=opts.length)?[]:opts.map(function(o){return o[0];});refresh();};
+  });
+  var dl=document.getElementById("nomes");
+  dl.innerHTML=allPeople().map(function(a){return '<option value="'+a+'">';}).join("");
+}
+function allPeople(){var p={};data.forEach(function(x){p[x.nome]=1;});
+  AQUIS.forEach(function(n){p[n]=1;});LICENCA.forEach(function(n){p[n]=1;});
+  return Object.keys(p).sort();}
+document.addEventListener("click",function(){document.querySelectorAll(".ms-pop").forEach(function(p){p.classList.remove("on");});});
+
+function render(){
+  filters();
+  var q=(document.getElementById("fBusca").value||"").toLowerCase();
+  function anyMatch(arr,test){return arr.length===0||arr.some(test);}
+  var rows=data.filter(function(x){
+    if(!anyMatch(SEL.time,function(v){return teamOf(x.nome)===v;}))return false;
+    if(!anyMatch(SEL.ano,function(v){return yearOf(x)===v;}))return false;
+    if(!anyMatch(SEL.mes,function(v){return monthsOf(x).indexOf(v)>=0;}))return false;
+    if(!anyMatch(SEL.pessoa,function(v){return x.nome===v;}))return false;
+    if(!anyMatch(SEL.tipo,function(v){return x.tipo===v;}))return false;
+    if(!anyMatch(SEL.sit,function(v){return situacao(x)[0]===v;}))return false;
+    var full=(x.gestor==="Aprovado"&&x.sistema==="Aprovado");
+    if(!anyMatch(SEL.status,function(v){return v==="full"?full:!full;}))return false;
+    if(q&&x.nome.toLowerCase().indexOf(q)<0)return false;
+    return true;
+  }).sort(function(a,b){return (a.inicio||"").localeCompare(b.inicio||"")||a.nome.localeCompare(b.nome);});
+
+  var tb=document.getElementById("tb");
+  tb.innerHTML=rows.map(function(x){
+    var s=situacao(x);
+    var tc=({"Férias":"c-fer","Folga":"c-folga","Day Off":"c-dayoff","Intenção de férias":"c-pret"})[x.tipo]||"c-pret";
+    return '<tr>'+
+      '<td class="nm">'+x.nome+'</td>'+
+      '<td>'+teamChip(x.nome)+'</td>'+
+      '<td><span class="chip '+tc+'">'+x.tipo+'</span></td>'+
+      '<td>'+fmt(x.inicio)+'</td><td>'+fmt(x.fim)+'</td>'+
+      '<td>'+(days(x.inicio,x.fim)||"—")+'</td>'+
+      '<td><span class="chip '+s[1]+'">'+s[0]+'</span></td>'+
+      '<td>'+apChip(x.gestor)+'</td><td>'+apChip(x.sistema)+'</td>'+
+      '<td class="hidem obs">'+(x.obs||"")+'</td>'+
+      '<td><span class="act"><button class="ic" title="Editar" onclick="edit(\''+x.id+'\')">&#9998;</button></span></td>'+
+    '</tr>';
+  }).join("");
+
+  document.getElementById("empty").style.display=rows.length?"none":"block";
+  summary(rows);
+}
+window.addFor=function(nome){openM(null);document.getElementById("mNome").value=nome;};
+
+function summary(rows){
+  var src=rows||data;
+  var fer=src.filter(function(x){return x.tipo==="Férias";}).length;
+  var pre=src.filter(function(x){return x.tipo==="Intenção de férias";}).length;
+  var fol=src.filter(function(x){return x.tipo==="Folga"||x.tipo==="Day Off";}).length;
+  var pend=src.filter(function(x){return x.gestor!=="Aprovado"||x.sistema!=="Aprovado";}).length;
+  var pess={};src.forEach(function(x){pess[x.nome]=1;});
+  var c=[["Registros",src.length],["Férias",fer],["Folgas / Day Off",fol],["Intenções",pre],["Pessoas",Object.keys(pess).length],["Pendentes",pend]];
+  document.getElementById("cards").innerHTML=c.map(function(a){return '<div class="scard"><div class="n">'+a[1]+'</div><div class="l">'+a[0]+'</div></div>';}).join("");
+}
+
+function roster(){}
+
+// modal
+var ov=document.getElementById("ov");
+function openM(x){
+  document.getElementById("mTit").textContent=x?"Editar registro":"Novo registro";
+  document.getElementById("mId").value=x?x.id:"";
+  document.getElementById("mNome").value=x?x.nome:"";
+  document.getElementById("mTime").value=x?teamOf(x.nome):"Performance";
+  document.getElementById("mTipo").value=x?x.tipo:"Férias";
+  document.getElementById("mIni").value=x?x.inicio:"";
+  document.getElementById("mFim").value=x?x.fim:"";
+  document.getElementById("mGestor").value=x?x.gestor:"Pendente";
+  document.getElementById("mSistema").value=x?x.sistema:"Pendente";
+  document.getElementById("mObs").value=x?(x.obs||""):"";
+  document.getElementById("mDel").style.display=x?"inline-flex":"none";
+  mDias();checkWarn();ov.classList.add("on");
+}
+function mDias(){var d=days(document.getElementById("mIni").value,document.getElementById("mFim").value);
+  document.getElementById("mDias").textContent=d?("Duração: "+d+" dia"+(d>1?"s":"")+" corridos"):"—";}
+// Grupos de rodízio (não podem coincidir datas entre si)
+var GRUPOS=[
+  ["Danilo Alves","Ruth Fagundes","Amanda Furtado"],
+  ["Piera Giovanna","Matheus Dantas","Gabriel Peixoto","Nicole Kodama"],
+  ["Marlon Ribeiro","Bárbara Cruvinel","Letícia Lopes"]
+];
+var BLOQ={"Férias":1,"Folga":1,"Day Off":1}; // tipos que contam como ausência
+function grupoDe(nome){for(var i=0;i<GRUPOS.length;i++)if(GRUPOS[i].indexOf(nome)>=0)return GRUPOS[i];return null;}
+function overlap(a1,a2,b1,b2){return a1<=b2&&b1<=a2;}
+function conflitos(nome,ini,fim,tipo,selfId){
+  if(!ini||!fim||!BLOQ[tipo])return [];
+  var g=grupoDe(nome);if(!g)return [];
+  var i1=parseD(ini),f1=parseD(fim);
+  return data.filter(function(x){
+    return x.id!==selfId && x.nome!==nome && g.indexOf(x.nome)>=0 && BLOQ[x.tipo]
+      && overlap(i1,f1,parseD(x.inicio),parseD(x.fim));
+  });
+}
+function checkWarn(){
+  var w=document.getElementById("mWarn");
+  var nome=document.getElementById("mNome").value.trim();
+  var ini=document.getElementById("mIni").value,fim=document.getElementById("mFim").value;
+  var tipo=document.getElementById("mTipo").value,id=document.getElementById("mId").value;
+  var c=conflitos(nome,ini,fim,tipo,id);
+  if(!c.length){w.style.display="none";w.innerHTML="";return;}
+  var lista=c.map(function(x){return x.nome+" ("+x.tipo+" · "+fmt(x.inicio)+"–"+fmt(x.fim)+")";}).join("; ");
+  w.innerHTML='<b>⚠ Conflito de datas.</b> Há sobreposição com outra pessoa do mesmo time: '+lista+
+    '. Procure o seu gestor para alinhamento. Você ainda pode salvar.';
+  w.style.display="block";
+}
+window.edit=function(id){var x=data.filter(function(a){return a.id===id;})[0];if(x)openM(x);};
+document.getElementById("btNew").onclick=function(){openM(null);};
+document.getElementById("mCancel").onclick=function(){ov.classList.remove("on");};
+ov.onclick=function(e){if(e.target===ov)ov.classList.remove("on");};
+document.getElementById("mIni").onchange=function(){mDias();checkWarn();};
+document.getElementById("mFim").onchange=function(){mDias();checkWarn();};
+document.getElementById("mNome").oninput=checkWarn;
+document.getElementById("mNome").onchange=checkWarn;
+document.getElementById("mTipo").onchange=checkWarn;
+document.getElementById("mSave").onclick=function(){
+  var nome=document.getElementById("mNome").value.trim();
+  var ini=document.getElementById("mIni").value,fim=document.getElementById("mFim").value;
+  if(!nome){alert("Informe o colaborador.");return;}
+  if(!ini||!fim){alert("Informe início e fim.");return;}
+  if(fim<ini){alert("A data de fim não pode ser anterior ao início.");return;}
+  var id=document.getElementById("mId").value;
+  TEAMS[nome]=document.getElementById("mTime").value;saveTeams();
+  var rec={id:id||uid(),nome:nome,tipo:document.getElementById("mTipo").value,
+    inicio:ini,fim:fim,gestor:document.getElementById("mGestor").value,
+    sistema:document.getElementById("mSistema").value,obs:document.getElementById("mObs").value.trim()};
+  if(id){data=data.map(function(a){return a.id===id?rec:a;});}else{data.push(rec);}
+  save();ov.classList.remove("on");refresh();
+};
+document.getElementById("mDel").onclick=function(){
+  var id=document.getElementById("mId").value;if(!id)return;
+  if(!confirm("Excluir este registro?"))return;
+  data=data.filter(function(a){return a.id!==id;});save();ov.classList.remove("on");refresh();
+};
+
+// filters
+document.getElementById("fBusca").oninput=refresh;
+document.getElementById("btClear").onclick=function(){
+  Object.keys(SEL).forEach(function(k){SEL[k]=[];});
+  document.getElementById("fBusca").value="";refresh();
+};
+
+// ===== Calendário (ano inteiro) =====
+var calYear=TODAY.getFullYear();
+var calFocusName=null,calFocusPrev=null;
+var MESNOME=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+var WDH=["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
+function tipoOff(t){return t==="Férias"?"fer":t==="Folga"?"folga":t==="Day Off"?"dayoff":"pret";}
+// Feriados nacionais (fixos + móveis via Páscoa)
+var HOLCACHE={},HOLY={};
+function easter(y){var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,mm=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*mm+114)/31),da=((h+l-7*mm+114)%31)+1;return new Date(y,mo-1,da);}
+function isoOf(dt){return dt.getFullYear()+'-'+pad2(dt.getMonth()+1)+'-'+pad2(dt.getDate());}
+function holidays(y){
+  if(HOLCACHE[y])return HOLCACHE[y];
+  var H={};
+  H[y+'-01-01']='Confraternização Universal';
+  H[y+'-04-21']='Tiradentes';
+  H[y+'-05-01']='Dia do Trabalho';
+  H[y+'-09-07']='Independência do Brasil';
+  H[y+'-10-12']='Nossa Senhora Aparecida';
+  H[y+'-11-02']='Finados';
+  H[y+'-11-15']='Proclamação da República';
+  H[y+'-11-20']='Consciência Negra';
+  H[y+'-12-25']='Natal';
+  var pa=easter(y);
+  function rel(n){var d=new Date(pa);d.setDate(d.getDate()+n);return isoOf(d);}
+  H[rel(-2)]='Sexta-feira Santa';
+  H[rel(-47)]='Carnaval';
+  H[rel(60)]='Corpus Christi';
+  HOLCACHE[y]=H;return H;
+}
+function calPasses(x){ // mesmos filtros da tabela (menos Pessoa/Ano/Mês)
+  if(SEL.time.length&&SEL.time.indexOf(teamOf(x.nome))<0)return false;
+  if(SEL.tipo.length&&SEL.tipo.indexOf(x.tipo)<0)return false;
+  if(SEL.sit.length&&SEL.sit.indexOf(situacao(x)[0])<0)return false;
+  var full=(x.gestor==="Aprovado"&&x.sistema==="Aprovado");
+  if(SEL.status.length&&!SEL.status.some(function(v){return v==="full"?full:!full;}))return false;
+  var q=(document.getElementById("fBusca").value||"").toLowerCase();
+  if(q&&x.nome.toLowerCase().indexOf(q)<0)return false;
+  return true;
+}
+function iniciais(n){var p=n.trim().split(/\s+/);return (p[0][0]+(p.length>1?p[p.length-1][0]:"")).toUpperCase();}
+function pad2(v){return (v<10?'0':'')+v;}
+function monthCard(y,m,segs){
+  var nd=new Date(y,m+1,0).getDate();
+  var lead=(new Date(y,m,1).getDay()+6)%7;         // semana começa Seg
+  var head='<tr>'+WDH.map(function(w,idx){return '<th class="'+(idx>=5?'wk':'')+'">'+w+'</th>';}).join("")+'</tr>';
+  var cells=[];
+  for(var i=0;i<lead;i++)cells.push('<td></td>');
+  for(var d=1;d<=nd;d++){
+    var dt=new Date(y,m,d),wd=dt.getDay();
+    var iso=y+'-'+pad2(m+1)+'-'+pad2(d);
+    var hol=HOLY[iso];
+    var holc=hol?' hol':'';
+    var day=segs.filter(function(s){var a=parseD(s.inicio),f=parseD(s.fim);return a<=dt&&dt<=f;});
+    var cls=(wd===0||wd===6)?'wke':'';
+    var isT=(dt.getFullYear()===TODAY.getFullYear()&&dt.getMonth()===TODAY.getMonth()&&dt.getDate()===TODAY.getDate())?' today':'';
+    if(day.length){
+      var ty=day.length>1?'multi':tipoOff(day[0].tipo);
+      var title=day.map(function(s){return s.nome+' · '+s.tipo;}).join(" | ")+(hol?' | Feriado: '+hol:'');
+      var dots=day.length>1?('<span class="dots">'+day.slice(0,4).map(function(s){return '<i class="dot-'+tipoOff(s.tipo)+'"></i>';}).join("")+'</span>'):"";
+      cells.push('<td data-d="'+iso+'" class="cd off off-'+ty+' '+cls+holc+isT+'" title="'+title+'"><span class="dn">'+d+dots+'</span></td>');
+    }else{
+      cells.push('<td data-d="'+iso+'" class="cd '+cls+holc+isT+'"'+(hol?' title="Feriado: '+hol+'"':'')+'><span class="dn">'+d+'</span></td>');
+    }
+  }
+  while(cells.length%7)cells.push('<td></td>');
+  var body="";
+  for(var k=0;k<cells.length;k+=7)body+='<tr>'+cells.slice(k,k+7).join("")+'</tr>';
+  // chips de quem está fora no mês (iniciais)
+  var first=new Date(y,m,1),last=new Date(y,m,nd),byP={};
+  segs.forEach(function(s){var a=parseD(s.inicio),f=parseD(s.fim);if(a<=last&&f>=first&&!byP[s.nome])byP[s.nome]=s.tipo;});
+  var names=Object.keys(byP).sort();
+  var pins=names.length?names.map(function(n){var on=(n===calFocusName)?' on':'';return '<span class="pin pin-'+tipoOff(byP[n])+on+'" data-nm="'+n.replace(/"/g,"&quot;")+'" title="'+n+' · '+byP[n]+' · clique para focar só nesta pessoa">'+iniciais(n)+'</span>';}).join(""):'<span class="none">—</span>';
+  return '<div class="mcard"><h4>'+MESNOME[m]+'</h4><table class="mcal"><thead>'+head+'</thead><tbody>'+body+'</tbody></table><div class="mpins">'+pins+'</div></div>';
+}
+function renderCal(){
+  document.getElementById("calMonth").textContent=calYear;
+  var y=calYear;
+  HOLY=holidays(y);
+  var names=SEL.pessoa.slice();
+  document.getElementById("calHint").style.display=names.length?"none":"block";
+  var segsAll=data.filter(function(x){return names.indexOf(x.nome)>=0&&calPasses(x)&&yearOf(x)<=String(y)&&(x.fim||"").slice(0,4)>=String(y);});
+  var html="";
+  for(var m=0;m<12;m++)html+=monthCard(y,m,segsAll);
+  document.getElementById("calGrid").innerHTML=html;
+}
+document.getElementById("calPrev").onclick=function(){calYear--;renderCal();};
+document.getElementById("calNext").onclick=function(){calYear++;renderCal();};
+document.getElementById("calToday").onclick=function(){calYear=TODAY.getFullYear();renderCal();};
+document.getElementById("calGrid").addEventListener("click",function(e){
+  var pin=e.target.closest&&e.target.closest(".pin[data-nm]");
+  if(pin){
+    var nm=pin.getAttribute("data-nm");
+    if(calFocusName===nm){SEL.pessoa=(calFocusPrev||[]).slice();calFocusName=null;calFocusPrev=null;}
+    else{if(calFocusName===null)calFocusPrev=SEL.pessoa.slice();SEL.pessoa=[nm];calFocusName=nm;}
+    refresh();return;
+  }
+  var td=e.target.closest&&e.target.closest("td[data-d]");if(!td)return;
+  var iso=td.getAttribute("data-d");
+  openM(null);
+  document.getElementById("mIni").value=iso;
+  document.getElementById("mFim").value=iso;
+  if(SEL.pessoa.length===1)document.getElementById("mNome").value=SEL.pessoa[0];
+  mDias();
+});
+document.querySelectorAll(".tab").forEach(function(t){t.onclick=function(){
+  document.querySelectorAll(".tab").forEach(function(z){z.classList.remove("on");});t.classList.add("on");
+  var v=t.getAttribute("data-view");
+  document.getElementById("viewTabela").style.display=(v==="tabela")?"":"none";
+  document.getElementById("viewCalendario").style.display=(v==="cal")?"":"none";
+  var calView=(v==="cal");
+  document.querySelector('.ms[data-key="ano"]').style.display=calView?"none":"";
+  document.querySelector('.ms[data-key="mes"]').style.display=calView?"none":"";
+  if(calView)renderCal();
+};});
+
+function refresh(){render();renderCal();}
+function boot(){
+  var local=localBlob();
+  var fin=function(){data.forEach(function(x,i){if(!x.id)x.id="s"+i;});save();refresh();};
+  var useLocal=function(){
+    if(local){data=local.registros||[];if(local.teams)TEAMS=local.teams;DATAVER=local.version||0;}
+    else{data=SEED.map(function(x,i){x.id="s"+i;return x;});DATAVER=0;}
+    fin();
+  };
+  try{
+    fetch('dados.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(rem){
+      if(rem&&rem.registros&&(!local||(rem.version||0)>(local.version||0))){
+        data=rem.registros;if(rem.teams)TEAMS=rem.teams;DATAVER=rem.version||0;fin();
+      }else{useLocal();}
+    }).catch(useLocal);
+  }catch(e){useLocal();}
+}
+var btPub=document.getElementById("btPub");
+if(btPub)btPub.onclick=function(){
+  var blob={version:DATAVER+1,atualizado:new Date().toISOString(),registros:data,teams:TEAMS};
+  var s=new Blob([JSON.stringify(blob,null,2)],{type:"application/json"});
+  var u=URL.createObjectURL(s),a=document.createElement("a");a.href=u;a.download="dados.json";a.click();
+  setTimeout(function(){URL.revokeObjectURL(u);},400);
+  alert("Arquivo dados.json baixado. Suba/substitua ele no repositório do GitHub (commit) para publicar as alterações para todo o time.");
+};
+boot();
+</script>
+</body>
+</html>

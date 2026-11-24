@@ -1,0 +1,180 @@
+{
+  "version": 1,
+  "atualizado": "2026-11-24T14:54:50.670Z",
+  "teams": {
+    "Marlon Ribeiro": "Performance",
+    "Piera Giovanna": "Performance",
+    "Matheus Dantas": "Performance",
+    "Ramon Bazani": "Performance",
+    "Wellington Fleury": "Performance",
+    "Letícia Lopes": "Performance",
+    "Ruth Fagundes": "Analytics",
+    "Amanda Furtado": "Analytics",
+    "Danilo Alves": "Analytics",
+    "Nicole Kodama": "Analytics",
+    "Gabriel Peixoto": "Analytics",
+    "Bárbara Cruvinel": "Analytics"
+  },
+  "registros": [
+    {
+      "nome": "Piera Giovanna",
+      "tipo": "Férias",
+      "inicio": "2026-01-19",
+      "fim": "2026-01-30",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "",
+      "id": "s0"
+    },
+    {
+      "nome": "Piera Giovanna",
+      "tipo": "Férias",
+      "inicio": "2026-09-08",
+      "fim": "2026-09-25",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "",
+      "id": "s1"
+    },
+    {
+      "nome": "Piera Giovanna",
+      "tipo": "Férias",
+      "inicio": "2027-02-01",
+      "fim": "2027-02-05",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "",
+      "id": "s2"
+    },
+    {
+      "nome": "Matheus Dantas",
+      "tipo": "Férias",
+      "inicio": "2026-02-09",
+      "fim": "2026-02-13",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "",
+      "id": "s3"
+    },
+    {
+      "nome": "Matheus Dantas",
+      "tipo": "Férias",
+      "inicio": "2026-03-16",
+      "fim": "2026-03-31",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "",
+      "id": "s4"
+    },
+    {
+      "nome": "Matheus Dantas",
+      "tipo": "Férias",
+      "inicio": "2026-07-06",
+      "fim": "2026-07-15",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "",
+      "id": "s5"
+    },
+    {
+      "nome": "Matheus Dantas",
+      "tipo": "Férias",
+      "inicio": "2027-02-11",
+      "fim": "2027-02-24",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "",
+      "id": "s6"
+    },
+    {
+      "nome": "Marlon Ribeiro",
+      "tipo": "Férias",
+      "inicio": "2026-08-03",
+      "fim": "2026-08-22",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "10 dias abonados",
+      "id": "s7"
+    },
+    {
+      "nome": "Ramon Bazani",
+      "tipo": "Férias",
+      "inicio": "2026-06-08",
+      "fim": "2026-06-12",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "",
+      "id": "s8"
+    },
+    {
+      "nome": "Ruth Fagundes",
+      "tipo": "Férias",
+      "inicio": "2026-01-19",
+      "fim": "2026-02-01",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "",
+      "id": "s9"
+    },
+    {
+      "nome": "Ruth Fagundes",
+      "tipo": "Férias",
+      "inicio": "2026-11-03",
+      "fim": "2026-11-18",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "",
+      "id": "s10"
+    },
+    {
+      "nome": "Gabriel Peixoto",
+      "tipo": "Férias",
+      "inicio": "2026-04-06",
+      "fim": "2026-04-16",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "",
+      "id": "s11"
+    },
+    {
+      "nome": "Gabriel Peixoto",
+      "tipo": "Férias",
+      "inicio": "2026-11-09",
+      "fim": "2026-11-20",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "",
+      "id": "s12"
+    },
+    {
+      "nome": "Wellington Fleury",
+      "tipo": "Férias",
+      "inicio": "2026-12-03",
+      "fim": "2026-12-17",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "10 dias abonados",
+      "id": "s13"
+    },
+    {
+      "nome": "Wellington Fleury",
+      "tipo": "Férias",
+      "inicio": "2027-01-25",
+      "fim": "2027-01-29",
+      "gestor": "Aprovado",
+      "sistema": "Aprovado",
+      "obs": "",
+      "id": "s14"
+    },
+    {
+      "nome": "Amanda Furtado",
+      "tipo": "Férias",
+      "inicio": "2027-01-04",
+      "fim": "2027-01-23",
+      "gestor": "Pendente",
+      "sistema": "Pendente",
+      "obs": "20 dias · 2 parcelas · retorno 24/01 · pendente aprovação",
+      "id": "s15"
+    }
+  ]
+}
